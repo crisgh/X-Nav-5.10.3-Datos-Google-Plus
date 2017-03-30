@@ -21,6 +21,8 @@
 <html>
   <head>
     <meta charset='utf-8' />
+    <link rel="stylesheet" type="text/css" href="estilo.css">
+    <title>Ejercicio 5.10.3</title>
   </head>
   <body>
     <!--Add a button for the user to click to initiate auth sequence -->
@@ -31,20 +33,21 @@
       // The provided key works for this sample only when run from
       // https://google-api-javascript-client.googlecode.com/hg/samples/authSample.html
       // To use in your own application, replace this API key with your own.
-      var apiKey = '';
+      var apiKey = 'AIzaSyAOdqXBCyOZdkXkljknwq1Z-bdwQosMvHE';
 
       // Use a button to handle authentication the first time.
       function handleClientLoad() {
         gapi.client.setApiKey(apiKey);
         makeApiCall();
+        listarActividades();
       }
 
       // Load the API and make an API call.  Display the results on the screen.
       function makeApiCall() {
-        gapi.client.load('plus', 'v1', function() {
-          var request = gapi.client.plus.people.get({
-            'userId': ''
-            // For instance: 
+        gapi.client.load('plus', 'v1', function() { // servicio, version , funcion callBack
+          var request = gapi.client.plus.people.get({ // mira en el explorador con los parametros que nos interesen
+            'userId': '103846222472267112072' // Esta es ChristinaCollada -- yo : 109371503170659888669 -- Mirando mi perfil de Google+
+            // For instance:
             // 'userId': '+GregorioRobles'
           });
           request.execute(function(resp) {
@@ -58,9 +61,51 @@
           });
         });
       }
+
+      function listarActividades() {
+        gapi.client.load('plus', 'v1', function() {
+          var request_activities = gapi.client.plus.activities.list({
+            'userId': '103846222472267112072',
+            'collection': 'public'
+            // For instance:
+            // 'userId': '+GregorioRobles'
+          });
+          request_activities.execute(function(resp) {
+            var list = document.getElementById('actividades');
+            var activities = resp.items;
+            for(activity of activities) {
+              console.log(activity.title);
+              var element = document.createElement('li');
+              element.href = activity.url;
+              element.className = "list-group-item";
+              var title = document.createElement('h5');
+              title.className = "list-group-item-heading";
+              title.innerHTML = activity.title;
+              element.appendChild(title);
+
+              if(typeof activity.location != 'undefined') {
+                console.log(activity.location);
+                var geolocation = document.createElement('p');
+                geolocation.className = "list-group-item-text";
+                geolocation.innerHTML = "Latitud: " + activity.location.position.latitude;
+                geolocation.innerHTML += " Longitud: " + activity.location.position.longitude;
+                element.appendChild(geolocation);
+              }
+
+              list.appendChild(element);
+            }
+          });
+        });
+      }
+
     </script>
     <script src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script>
     <div id="content"></div>
-    <p>Retrieves your profile name (and picture) using the Google Plus API.</p>
+    <h5> Ejercicio que muestra la imagen y el perfil usando : Google Plus API (.people) y el listado de actividades usando:  Google Plus API (.activities).</h5>
+    <p>Actividades:</p>
+    <ul>
+      <li id="actividades"></li>
+    </ul>
+
   </body>
 </html>
